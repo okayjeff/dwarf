@@ -12,7 +12,7 @@ def bar_func(request):
 
 
 # URL patterns
-URLS = {
+urls = {
     '^/foo/?$': foo_func,
     '^/bar/?$': bar_func,
 }
@@ -22,9 +22,9 @@ URLS = {
 def parse_request(req):
     parsed_req = re.search('^([A-Z]{3,6})\s(/[a-zA-Z0-9]+/?)', req)
     if parsed_req:
-        for pattern in list(URLS.keys()):
+        for pattern in list(urls.keys()):
             if re.search(pattern, parsed_req.groups()[1]):
-                controller = URLS[pattern]
+                controller = urls[pattern]
                 return controller(parsed_req)
         return None
     return None
