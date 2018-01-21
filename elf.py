@@ -1,18 +1,20 @@
 import re
 import socket
 
+
 def foo_func(request):
     return 'HTTP/1.1 200 OK\n\nI am FOO!'
+
 
 def bar_func(request):
     return 'HTTP/1.1 200 OK\n\nI am BAR!'
 
-HOST, PORT = '', 8888
 
 URLS = {
     '^/foo/?$': foo_func,
     '^/bar/?$': bar_func,
 }
+
 
 def parse_request(req):
     parsed_req = re.search('^([A-Z]{3,6})\s(/[a-zA-Z0-9]+/?)', req)
@@ -24,23 +26,31 @@ def parse_request(req):
         return None
     return None
 
-listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-listen_socket.bind((HOST, PORT))
-listen_socket.listen(1)
 
-print('Serving HTTP on port {} ...'.format(PORT))
+def start_server(host='', port=8888):
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    s.bind((host, port))
+    s.listen(1)
+    print('Serving HTTP on port {} ...'.format(port))
+    return s
 
-while True:
-    conn, _ = listen_socket.accept()
-    request = conn.recv(1024)
-    print(request)
-    
-    res = parse_request(request)
-    if not res:
-        res = 'HTTP/1.1 404 NOT FOUND\n\nPage not found.'
-    
-    print(res)
 
-    conn.sendall(res)
-    conn.close()
+def run():
+    server = start_server();
+
+    while True:
+        conn, _ = server.accept()
+        request = conn.recv(1024)
+        print(request)
+        
+        res = parse_request(request)
+        if not res:
+            res = 'HTTP/1.1 404 NOT FOUND\n\nPage not found.'
+        
+        print(res)
+        conn.sendall(res)
+        conn.close()
+
+if __name__ == '__main__':
+    run()
