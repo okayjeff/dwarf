@@ -2,6 +2,7 @@ import re
 import socket
 
 
+# Controllers
 def foo_func(request):
     return 'HTTP/1.1 200 OK\n\nI am FOO!'
 
@@ -10,12 +11,14 @@ def bar_func(request):
     return 'HTTP/1.1 200 OK\n\nI am BAR!'
 
 
+# URL patterns
 URLS = {
     '^/foo/?$': foo_func,
     '^/bar/?$': bar_func,
 }
 
 
+# Request handling
 def parse_request(req):
     parsed_req = re.search('^([A-Z]{3,6})\s(/[a-zA-Z0-9]+/?)', req)
     if parsed_req:
@@ -51,6 +54,7 @@ def run():
         print(res)
         conn.sendall(res)
         conn.close()
+
 
 if __name__ == '__main__':
     run()
