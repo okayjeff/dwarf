@@ -1,4 +1,5 @@
 import socket
+import sys
 
 from utils.request import parse_request
 
@@ -15,22 +16,27 @@ def start_server(host='', port=8888):
 def run():
     server = start_server()
 
-    while True:
-        conn, _ = server.accept()
-        request = conn.recv(1024)
-        print(request)
-        
-        req = parse_request(request)
-        if not req:
-            resp = 'HTTP/1.1 404 NOT FOUND\n\nPage not found.'
+    try:
+        while True:
+            conn, _ = server.accept()
+            request = conn.recv(1024)
+            print(request)
+
+            req = parse_request(request)
+            if not req:
+                resp = 'HTTP/1.1 404 NOT FOUND\n\nPage not found.'
+                conn.sendall(resp)
+
+            controller = req.get_matched_route_controller()
+            resp = controller(request)
+
+            print(resp)
             conn.sendall(resp)
+            conn.close()
 
-        controller = req.get_matched_route_controller()
-        resp = controller(request)
-
-        print(resp)
-        conn.sendall(resp)
-        conn.close()
+    except KeyboardInterrupt:
+        print('\nShutting down...')
+        sys.exit()
 
 
 if __name__ == '__main__':
